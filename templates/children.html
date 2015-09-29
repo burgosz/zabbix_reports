@@ -1,0 +1,27 @@
+{% load zabbix_call %}
+{% load zabbix_period %}
+{% load zabbix_utils %}
+{{ parent }} <br>
+{% for child in parent.dependencies %}
+
+        {% get_color c as color %}
+
+
+           <td style="width:50%; alignment: right; background: {{ color }}">
+                {{ch.result.0.name}}</td>
+            {% zbx_periods_deep child.serviceid time_from time_till as periods %}
+            <td>{{ periods.items.0.1.sla }}</td>
+            <td>{{ periods.items.0.1.count }}</td>
+            <td>{{ periods.items.0.1.max }}</td>
+            <td>{{ periods.items.0.1.sum }}</td>
+            <td>{{ periods.items.0.1.MTBF }}</td>
+        </tr>
+
+        {{ c.inc }}
+        {% with parent=ch.result.0 counter=c template='children.html' %}
+            {% include template %}
+        {% endwith %}
+
+
+    {{ c.dec }}
+{% endfor %}

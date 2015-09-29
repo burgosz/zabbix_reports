@@ -1,0 +1,111 @@
+<style>
+/**
+ * Default report CSS for ZabbixReports
+ *
+ * GPLv3 by Erno Rigo <erno@rigo.info>
+ */
+
+body {
+	font-family: sans-serif;
+    font-size: 10px;
+}
+
+p {
+	text-align: justify;
+}
+
+.nobr {
+	page-break-inside: avoid;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	page-break-after: avoid;
+}
+
+.header {
+	border-bottom-style: solid;
+	border-bottom-color: black;
+	border-bottom-width: 1px;
+}
+
+.header-title {
+	text-align: left;
+	float: left;
+	vertical-align: bottom;
+	width: 50%;
+}
+
+.header-date {
+	text-align: right;
+	float: right;
+	vertical-align: bottom;
+	width: 50%;
+}
+
+
+.footer {
+	border-top-style: solid;
+	border-top-color: black;
+	border-top-width: 1px;
+}
+
+.footer-logo {
+	text-align: left;
+	float: left;
+	vertical-align: top;
+	width: 50%;
+}
+
+.footer-logo-img {
+	vertical-align: middle;
+	
+}
+
+.footer-pageno {
+	text-align: right;
+	float: right;
+	vertical-align: top;
+	width: 50%;
+}
+
+table {
+	border-collapse: separate;
+	empty-cells: show;
+}
+
+td, th {
+	font-size: 8pt;
+    padding-top: 2px;
+    padding-bottom: 1px;
+    line-height: 100%;
+}
+
+tr.odd td {
+	background: #F2F7FA;
+}
+
+tr.even {
+	background: #E1E7EC;
+}
+
+thead tr th, thead tr td, tfoot tr th, tfoot tr td {
+	font-weight: bold;
+}
+th {
+    background: #A3BCD4;
+}
+thead { display: table-header-group }
+tfoot { display: table-row-group }
+tr { page-break-inside: avoid }
+.sla-good {
+	color: green;
+}
+
+.sla-bad {
+	color: red;
+}
+
+.graph {
+	text-align: center;
+}
+</style>

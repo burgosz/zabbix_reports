@@ -1,0 +1,155 @@
+{% load zabbix_call %}
+{% load zabbix_period %}
+{% load staticfiles %}
+{% load zabbix_utils %}
+{% load zabbix_services %}
+{% load cache %}
+{% load zabbix_stats %}
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+
+<style>
+    page{
+        size: A4 portrait;
+        margin: 2cm;
+    }
+    {#    table {    -pdf-keep-in-frame-mode: shrink;}#}
+    {#        table {#}
+    {#            -pdf-keep-in-frame-mode: shrink;}#}
+</style>
+<head>
+    {% include 'zabbixreports-css.html' %}
+    {% include 'report-css.html' %}
+    <meta name="pdfkit-header-right" content="Page [page] of [toPage]">
+</head>
+<body>
+{% zbx_service_container_get as services %}
+{% zbx_service_ids_get_deep top_id services as ids %}
+{% zbx_stats_get as stats %}
+{% zbx_stats_get as stats_prev %}
+{% zbx_stats_get as stats_prev3 %}
+{% previous_month time_from  1 as prev %}
+{% previous_month time_from  3 as prev3%}
+{#{% cache 86400 services %}#}
+<table class="cimsor">
+    <tr>
+        <td><img class="logo" src="{% static 'fszek-logo.jpg' %}" /></td>
+        <td align="center">
+            <h1>Fővárosi Szabó Ervin Könyvtár</h1>
+            <h3>SLA jelentés</h3>
+            <h3>{{ time_from|timestamp_to_time|date:"Y. m. d. H:i " }} - {{ time_till|timestamp_to_time|date:"Y. m. d. H:i" }} ({{ time_till|sub:time_from|second_to_readable }})</h3>
+        </td>
+        <td><img class="logo" src="{% static 'hbit-logo.jpg' %}" /></td>
+    </tr>
+</table>
+<table>
+    <thead>
+    <tr>
+        <th width="35%">Eszköz</th>
+        <th width="13%">SLA (%)</th>
+        <th width="13%">Hibák száma (db)</th>
+        <th width="13%">Leghosszabb hiba (nap:óra:perc)</th>
+        <th width="13%">Összes kiesés</th>
+        <th width="13%">MTBF</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for srv in services %}
+
+        {% with method='service.get' args="{'serviceids':'"|add:srv.id|add:"', 'output':'extend', 'selectDependencies':'extend'}" %}
+
+            {% zbx_call method args as service %}
+            {% if srv.level == '0' %}
+                <tr>
+                    <th colspan="6">{{ service.result.0.name}}</th>
+                </tr>
+            {% else %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td>
+                        {% if srv.level == '2' %}
+                            =>
+                        {% endif %}
+                        {% if srv.level == '3' %}
+                            ==>
+                        {% endif %}
+                        {{ service.result.0.name}}
+                    </td>
+                    {% zbx_periods_get service.result.0.serviceid time_from time_till as periods %}
+
+                    {% zbx_stats_add_service stats 'count' periods.stats.count|default:"0" %}
+                    {% zbx_stats_add_service stats 'max' periods.stats.max|default:"0" %}
+                    {% zbx_stats_add_service stats 'sum' periods.stats.sum|default:"0" %}
+                    {% zbx_stats_add_service stats 'MTBF' periods.stats.MTBF|default:"0" %}
+                    {% zbx_stats_add_service stats 'counter' 0 %}
+
+                    {% zbx_periods_get service.result.0.serviceid prev.0 prev.1 as periods_prev %}
+
+                    {% zbx_stats_add_service stats_prev 'count' periods_prev.stats.count|default:"0" %}
+                    {% zbx_stats_add_service stats_prev 'max' periods_prev.stats.max|default:"0" %}
+                    {% zbx_stats_add_service stats_prev 'sum' periods_prev.stats.sum|default:"0" %}
+                    {% zbx_stats_add_service stats_prev 'MTBF' periods_prev.stats.MTBF|default:"0" %}
+                    {% zbx_stats_add_service stats_prev 'counter' 0 %}
+
+                    {% zbx_periods_get service.result.0.serviceid prev3.0 prev3.1 as periods_prev3 %}
+
+                    {% zbx_stats_add_service stats_prev3 'count' periods_prev3.stats.count|default:"0" %}
+                    {% zbx_stats_add_service stats_prev3 'max' periods_prev3.stats.max|default:"0" %}
+                    {% zbx_stats_add_service stats_prev3 'sum' periods_prev3.stats.sum|default:"0" %}
+                    {% zbx_stats_add_service stats_prev3 'MTBF' periods_prev3.stats.MTBF|default:"0" %}
+                    {% zbx_stats_add_service stats_prev3 'counter' 0 %}
+
+                    <td align="center">{{ periods.stats.sla|default:"100.00" }}%</td>
+                    <td align="center">{{ periods.stats.count|default:"0" }}</td>
+                    <td align="center">{{ periods.stats.max|default:"0"|second_to_readable }}</td>
+                    <td align="center">{{ periods.stats.sum|default:"0"|second_to_readable }}</td>
+                    <td align="center">{{ periods.stats.MTBF|default:"0"|second_to_readable}}</td>
+                </tr>
+            {% endif %}
+        {% endwith %}
+    {% endfor %}
+    </tbody>
+
+    <tfoot>
+    <tr>
+        <th width="35%">Összesen</th>
+        <th width="13%">SLA (%)</th>
+        <th width="13%">Hibák száma (db)</th>
+        <th width="13%">Leghosszabb hiba (nap:óra:perc)</th>
+        <th width="13%">Összes kiesés</th>
+        <th width="13%">MTBF (Átlagos)</th>
+    </tr>
+    <tr>
+        {% zbx_stats_calculate stats time_till|sub:time_from %}
+        <td>Adott időszakban ({{ time_from|timestamp_to_time|date:"Y. m. d. H:i " }} - {{ time_till|timestamp_to_time|date:"Y. m. d. H:i" }})</td>
+        <td align="center">{{ stats.sla|default:"100.00" }}%</td>
+        <td align="center">{{ stats.count|default:"0" }}</td>
+        <td align="center">{{ stats.max|default:"0"|second_to_readable }}</td>
+        <td align="center">{{ stats.sum|default:"0"|second_to_readable }}</td>
+        <td align="center">{{ stats.MTBF|default:"0"|second_to_readable}}</td>
+    </tr>
+    <tr>
+
+        <td>Előző hónapban ({{ prev.0|timestamp_to_time|date:"Y. m. d. H:i " }} - {{ prev.1|timestamp_to_time|date:"Y. m. d. H:i"}})</td>
+        {% zbx_stats_calculate stats_prev prev.1|sub:prev.0 %}
+        <td align="center">{{ stats_prev.sla|default:"100.00" }}%</td>
+        <td align="center">{{ stats_prev.count|default:"0" }}</td>
+        <td align="center">{{ stats_prev.max|default:"0"|second_to_readable }}</td>
+        <td align="center">{{ stats_prev.sum|default:"0"|second_to_readable }}</td>
+        <td align="center">{{ stats_prev.MTBF|default:"0"|second_to_readable}}</td>
+    </tr>
+
+        <tr>
+
+        <td>Előző negyedévben ({{ prev3.0|timestamp_to_time|date:"Y. m. d. H:i " }} - {{prev3.1|timestamp_to_time|date:"Y. m. d. H:i"}})</td>
+        {% zbx_stats_calculate stats_prev3 prev3.1|sub:prev3.0 %}
+        <td align="center">{{ stats_prev3.sla|default:"100.00" }}%</td>
+        <td align="center">{{ stats_prev3.count|default:"0" }}</td>
+        <td align="center">{{ stats_prev3.max|default:"0"|second_to_readable }}</td>
+        <td align="center">{{ stats_prev3.sum|default:"0"|second_to_readable }}</td>
+        <td align="center">{{ stats_prev3.MTBF|default:"0"|second_to_readable}}</td>
+    </tr>
+    </tfoot>
+
+</table>
+
+</body>
+</html>
