@@ -15,8 +15,8 @@ def _zbx_service_ids_get_deep(topids, service_ids, level=0):
     topidstostring = '["'+'","'.join(str(e) for e in topids)+'"]'
     args = "{'parentids': "+topidstostring+", 'output': 'extend'}"
     services = zbx_call('service.get', args)
-
-    for service in services['result']:
+    services = sorted(services['result'], key=lambda srv: srv['name'])
+    for service in services:
         service_ids.append({'id': str(service['serviceid']), 'level': str(level)})
         pids = []
         pids.append(int(service['serviceid']))

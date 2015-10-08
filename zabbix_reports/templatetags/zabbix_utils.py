@@ -28,9 +28,9 @@ def second_to_readable(second):
 
 @register.assignment_tag
 def previous_month(time_from, months):
-    date_till =  datetime.datetime.fromtimestamp(int(time_from))
-    date_till =  datetime.datetime(date_till.year, date_till.month, 1, 0, 0)
-    date_from =  date_till - relativedelta(months=int(months))
+    date_till = datetime.datetime.fromtimestamp(int(time_from))
+    date_till = datetime.datetime(date_till.year, date_till.month, 1, 0, 0)
+    date_from = date_till - relativedelta(months=int(months))
     date_from = str(time.mktime(date_from.timetuple()))
     date_till = str(time.mktime(date_till.timetuple()))
     date_till = date_till[:-2]
