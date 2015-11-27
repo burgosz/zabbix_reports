@@ -96,3 +96,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'zabbix_reports', 'static')
 STATIC_URL = '/static/'
+
+
+ZABBIX_URL = 'https://zabbix.url'
+ZABBIX_USER = 'username'
+ZABBIX_PASSWD = 'password'
