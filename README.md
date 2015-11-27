@@ -43,6 +43,8 @@ Configure Apache to serve the page. Replace the locations with the location of t
                 AllowOverride None
                 Require all granted
         </Directory>
+        
+Fill in your zabbix credentionals in 13th line of the templatetags/zabbix_call.py.
 ### Usage
 The site accepts 3 get parameters:
 * tid: is the ID of the top service (the first parent), you can add more than one top id seperated with '-'
