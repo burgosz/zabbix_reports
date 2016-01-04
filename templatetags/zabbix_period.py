@@ -93,7 +93,7 @@ def zbx_periods_get(serviceid, time_from, time_till):
         if not last_event:
             last_event.append(events[0])
         eventids = []
-        for i in range(1, len(events)-1):
+        for i in range(1, len(events)):
             if events[i-1]['value'] == events[i]['value']:
                 eventids.append(events[i-1]['eventid'])
         for event in events:
@@ -107,7 +107,7 @@ def zbx_periods_get(serviceid, time_from, time_till):
             events.pop(0)
         if last_event[0]['value'] == '0' and events[0]['value'] == '0' and len(events)>1:
             events.pop(0)
-        for i in range(1, len(events)-1, 2):
+        for i in range(1, len(events), 2):
             periods.append([events[i-1]['clock'], events[i]['clock']])
         if events[-1]['value'] == '1':
             periods.append([events[-1]['clock'], time_till])
