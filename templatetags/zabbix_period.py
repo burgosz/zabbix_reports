@@ -4,7 +4,7 @@ from zabbix_services import zbx_service_ids_get_deep
 # from zabbix.api import ZabbixAPI
 import json
 from zabbix_reports.templatetags.zabbix_call import zbx_call
-from django.core.cache import get_cache
+from django.core.cache import cache
 register = template.Library()
 
 # @register.assignment_tag
@@ -22,7 +22,6 @@ register = template.Library()
 def zbx_periods_get(serviceid, time_from, time_till):
 
     #Caching. If cached return the cached value.
-    cache = get_cache('default')
     key = ""+serviceid+time_from+time_till
     cached = cache.get(key)
     if cached:

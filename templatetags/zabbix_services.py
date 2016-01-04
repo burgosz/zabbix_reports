@@ -2,7 +2,7 @@ __author__ = 'burgosz'
 from django import template
 register = template.Library()
 from zabbix_reports.templatetags.zabbix_call import zbx_call
-from django.core.cache import get_cache
+from django.core.cache import cache
 
 @register.assignment_tag
 def zbx_service_container_get():
@@ -30,7 +30,6 @@ def _zbx_service_ids_get_deep(topids, service_ids, level=0):
 @register.assignment_tag
 def zbx_service_ids_get_deep(topids, service_ids, level=0):
     # Cache the service ids
-    cache = get_cache('default')
     key = "deep_"+'["'+'","'.join(str(e) for e in topids)+'"]'
     cached = cache.get(key)
     if cached:
